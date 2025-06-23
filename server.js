@@ -39,6 +39,25 @@ app.post('/api/login', async (req, res) => {
   }
 })
 
+app.post('/api/post', async (req, res) => {
+  const { content } = req.body
+  try {
+    const post = await Post.create({ content })
+    res.json({ message: 'Post created', post })
+  } catch (err) {
+    res.status(500).json({ message: 'Server error' })
+  }
+})
+
+app.get('/api/getpost', async (req, res) => {
+  try {
+    const posts = await Post.find()
+    res.json(posts)
+  } catch (err) {
+    res.status(500).json({ message: 'Server error' })
+  }
+})
+
 console.log(users)
 app.listen(5000, () => console.log('Backend running on http://localhost:5000'))
 
@@ -53,4 +72,10 @@ const userSchema = new mongoose.Schema({
   password: String,
 })
 
+const postSchema = new mongoose.Schema({
+  title: String,
+  content: String,
+})
+
 const User = mongoose.model('User', userSchema)
+const Post = mongoose.model('Post', postSchema)

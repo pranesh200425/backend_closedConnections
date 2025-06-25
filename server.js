@@ -10,7 +10,6 @@ app.use(cors())
 app.use(express.json())
 const mangoURI = process.env.MONGO_URI
 
-const users = []
 
 app.post('/api/signup', async (req, res) => {
   const { email, password } = req.body
@@ -58,14 +57,14 @@ app.get('/api/getpost', async (req, res) => {
   }
 })
 
-console.log(users)
+//console.log(users)
 app.listen(5000, () => console.log('Backend running on http://localhost:5000'))
 
 
 mongoose.connect(mangoURI, {
 })
-.then(() => console.log('MongoDB connected'))
-.catch(err => console.error('MongoDB connection error:', err))
+  .then(() => console.log('MongoDB connected'))
+  .catch(err => console.error('MongoDB connection error:', err))
 
 const userSchema = new mongoose.Schema({
   email: { type: String, unique: true },

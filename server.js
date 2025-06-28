@@ -12,10 +12,10 @@ const mangoURI = process.env.MONGO_URI
 
 
 let gID = 0;
-let current_group = 0;
+let groupID = 0;
 
 const groupschema = new mongoose.Schema({
-  groupID: { type: Number, required: true },
+  group_ID: { type: Number, required: true },
   members: { type: Number , default: 0 },
 });
 
@@ -26,21 +26,41 @@ app.post('/api/signup', async (req, res) => {
     if (existing) {
       return res.status(400).json({ message: 'User already exists' })
     }
-    await User.create({ email, password, current_group })
-    res.json({ message: 'Signup successful' })
     const group_ID = gID;
-    const group = await groupschema.find({groupID: group_ID})
-    group.json()
-    if(!group[members] > 99){
-      group[member] += 1;
+    const group = await Group.findOne({group_ID: gID})
+    if(!group){
+      const group = await Group.create({ group_ID, members: 0 });
+      await User.create({ email, password, groupID })
+      //group.json()
+      group.members += 1;
       await group.save();
-    } else {
-      const group = await groupschema.create({ groupID, members: 0 });
+      return res.json({ message: 'Signup successful' })
+    }
+    if(group.members > 99){
+      //group.json()
+      /* 
+      group.members += 1;
+      await group.save(); */
+      
+      const group = await Group.create({ group_ID, members: 0 });
+      await User.create({ email, password, groupID })
+      //group.json()
+      group.members += 1;
+      await group.save();
       gID += 1;
       current_group = gID;
-    }
+      return res.json({ message: 'Signup successful' })
+
+    } else {
+      group.members += 1;
+      await group.save()
+      await User.create({ email, password, groupID })
+      return res.json({ message: 'Signup successful' })
+    }/* 
+    await User.create({ email, password, groupID })
+    res.json({ message: 'Signup successful' }) */
   } catch (err) {
-    res.status(500).json({ message: 'Server error' })
+    res.status(500).json({ message: err.message })
   }
 })
 
@@ -112,3 +132,4 @@ const postSchema = new mongoose.Schema({
 
 const User = mongoose.model('User', userSchema)
 const Post = mongoose.model('Post', postSchema)
+const Group = mongoose.model('Group', groupschema);

@@ -11,6 +11,14 @@ app.use(express.json())
 const mangoURI = process.env.MONGO_URI
 
 
+let gID = 0;
+let current_group = 0;
+
+const groupschema = new mongoose.Schema({
+  groupID: { type: Number, required: true },
+  members: { type: Number , default: 0 },
+});
+
 app.post('/api/signup', async (req, res) => {
   const { email, password } = req.body
   try {
@@ -18,8 +26,19 @@ app.post('/api/signup', async (req, res) => {
     if (existing) {
       return res.status(400).json({ message: 'User already exists' })
     }
-    await User.create({ email, password })
+    await User.create({ email, password, current_group })
     res.json({ message: 'Signup successful' })
+    const group_ID = gID;
+    const group = await groupschema.find({groupID: group_ID})
+    group.json()
+    if(!group[members] > 99){
+      group[member] += 1;
+      await group.save();
+    } else {
+      const group = await groupschema.create({ groupID, members: 0 });
+      gID += 1;
+      current_group = gID;
+    }
   } catch (err) {
     res.status(500).json({ message: 'Server error' })
   }
@@ -57,6 +76,20 @@ app.get('/api/getpost', async (req, res) => {
   }
 })
 
+
+
+/* app.post('/api/assignGroup', async (req, res) => {
+  const groupID = gID;
+  try {
+    const group = await groupschema.find({groupID: groupID})
+    group.json()
+    if(group[members] > 99){
+      const group = await groupschema.create({ groupID, members: 0 });
+
+    }
+  }
+}) */
+
 //console.log(users)
 app.listen(5000, () => console.log('Backend running on http://localhost:5000'))
 
@@ -69,6 +102,7 @@ mongoose.connect(mangoURI, {
 const userSchema = new mongoose.Schema({
   email: { type: String, unique: true },
   password: String,
+  groupID: { type: Number, required: true },
 })
 
 const postSchema = new mongoose.Schema({

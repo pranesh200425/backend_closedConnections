@@ -12,25 +12,23 @@ const mongo = process.env.MONGO_URI;
 
 const groupschema = mongoose.Schema({
   groupID: { type: Number, required: true },
-  members: { type: [Number] },
+  members: { type: Number , default: 0 },
 });
 
 const Group = new mongoose.model("Group", groupschema);
 let gID = 0;
+let current_group = 0;
 app.post('/api/postGroup', async (req, res)=> {  
   let groupID = 0;
   const members = [];
   try {
-    for(let i = 0; i < 100; i++) {
   const GroupDoc = await Group.create({ groupID, members });
-  groupID++;
-    }
   res.status(201).json({message: "Group created successfully"});
   
 }catch (err) { 
     res.status(500).json({ message: "Server error" });
   }
-})
+})              
 
 app.get('/api/getGroup', async (req, res) => {
   const groupId = Math.floor(Math.random() * 100);
